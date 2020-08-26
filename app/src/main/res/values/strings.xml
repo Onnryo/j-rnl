@@ -19,4 +19,16 @@
     <string name="bad">bad</string>
     <string name="neutral">neutral</string>
     <string name="good">good</string>
+    <string name="title">Title</string>
+    <string name="body">Body</string>
+    <string name="save">save</string>
+    <string name="adjust_date_time">adjust date time</string>
+    <string name="more">more</string>
+    <string name="add_tags">add tags</string>
+    <string name="add_images">add images</string>
+    <string name="location">location</string>
+    <string name="add_list">add list</string>
+    <string name="bold">bold</string>
+    <string name="italic">italic</string>
+    <string name="quote">quote</string>
 </resources>
