@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.content.Context
 import android.os.Bundle
 import android.view.Menu
 import android.view.View
@@ -15,10 +14,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.android.material.navigation.NavigationView
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {

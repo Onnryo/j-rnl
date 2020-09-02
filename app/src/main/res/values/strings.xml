@@ -7,6 +7,7 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
+    <string name="todo">TODO</string>
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Gallery</string>
     <string name="menu_slideshow">Slideshow</string>
@@ -31,4 +32,5 @@
     <string name="bold">bold</string>
     <string name="italic">italic</string>
     <string name="quote">quote</string>
+    <string name="back">back</string>
 </resources>

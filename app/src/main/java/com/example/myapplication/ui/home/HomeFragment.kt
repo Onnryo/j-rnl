@@ -7,27 +7,26 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageButton
-import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.R
-import com.example.myapplication.models.Entry
+import com.example.myapplication.adapters.TimelineAdapter
+import com.example.myapplication.models.TimelineItem
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.Gson
+import kotlinx.android.synthetic.main.fragment_home.*
 import java.io.*
 
 
-class HomeFragment : Fragment() {
+class HomeFragment : Fragment(), TimelineAdapter.OnItemClickListener {
 
     private lateinit var homeViewModel: HomeViewModel
-    val FILENAME: String = "storage.json"
-    private var entries: ArrayList<Entry> = ArrayList<Entry>()
+
+    private val storageFile: String = "storage.json"
+    private var timelineList: ArrayList<TimelineItem> = ArrayList()
 
     private fun read(context: Context, fileName: String): String? {
         return try {
@@ -69,14 +68,21 @@ class HomeFragment : Fragment() {
         return file.exists()
     }
 
+    override fun onItemClick(v: View, position: Int) {
+        //Toast.makeText(this.context, "Item $position clicked", Toast.LENGTH_SHORT).show()
+        //v.backgroundTintList = ColorStateList.valueOf(Color.RED)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val isFilePresent = isFilePresent(activity!!, FILENAME)
+
+        val isFilePresent = isFilePresent(activity!!, storageFile)
         if (isFilePresent) {
-            val jsonString = read(activity!!, FILENAME)
-            entries = Gson().fromJson(jsonString, Array<Entry>::class.java).toList() as ArrayList<Entry>
+            val jsonString = read(activity!!, storageFile)
+            Log.d("HomeFragment.onCreate", jsonString!!)
+            timelineList = ArrayList(Gson().fromJson(jsonString, Array<TimelineItem>::class.java).toList())
         } else {
-            val isFileCreated = create(activity!!, FILENAME, "[]")
+            val isFileCreated = create(activity!!, storageFile, Gson().toJson(timelineList))
             if (!isFileCreated) {
                 Log.e("HomeFragment.onCreate", "Failed to create json file")
             }
@@ -90,36 +96,21 @@ class HomeFragment : Fragment() {
     ): View? {
         homeViewModel =
                 ViewModelProviders.of(this).get(HomeViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_home, container, false)
-        return root
+        return inflater.inflate(R.layout.fragment_home, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        val back: ImageButton = view.findViewById(R.id.entryBack)
-        val save: ImageButton = view.findViewById(R.id.entrySave)
-        val title: TextInputEditText = view.findViewById(R.id.entryTitle)
-        val body: TextInputEditText = view.findViewById(R.id.entryBody)
-
-        fun reload() {
-            for (i in 0 until entries.size) {
-                val textView = TextView(this.context)
-                textView.text = entries[i].toString()
-                view.findViewById<LinearLayout>(R.id.homeTimeline).addView(textView)
-            }
-        }
+        timelineRecycler.adapter = TimelineAdapter(timelineList, this)
+        timelineRecycler.layoutManager = LinearLayoutManager(this.context)
 
         fun save() {
-            val e: Entry = Entry(title.text.toString(), body.text.toString()) // TODO: add metadata
-            entries.add(e)
-            val jsonString = Gson().toJson(entries)
-            Log.d("HomeFragment.save", jsonString)
-            val isFileCreated = create(activity!!, FILENAME, jsonString)
+            val item = TimelineItem(entryTitle.text.toString(), entryBody.text.toString()) // TODO: add tag metadata
+            timelineList.add(item)
+            val isFileCreated = create(activity!!, storageFile, Gson().toJson(timelineList))
             if (!isFileCreated) {
                 Log.e("HomeFragment.onCreate", "Failed to create json file")
             }
-            reload()
         }
 
         fun back() {
@@ -130,32 +121,31 @@ class HomeFragment : Fragment() {
             view.rootView.findViewById<FloatingActionButton>(R.id.fab).show()
             view.rootView.findViewById<Toolbar>(R.id.toolbar).visibility = View.VISIBLE
             view.findViewById<ConstraintLayout>(R.id.entry).visibility = View.GONE
-            back.visibility = View.VISIBLE
-            save.visibility = View.GONE
-            title.setText("")
-            body.setText("")
+            entryBack.visibility = View.VISIBLE
+            entrySave.visibility = View.GONE
+            entryTitle.setText("")
+            entryBody.setText("")
         }
 
-        title.setOnFocusChangeListener { _, b ->
+        entryTitle.setOnFocusChangeListener { _, b ->
             if(b) {
-                back.visibility = View.GONE
-                save.visibility = View.VISIBLE
+                entryBack.visibility = View.GONE
+                entrySave.visibility = View.VISIBLE
             }
         }
-        body.setOnFocusChangeListener { _, b ->
+        entryBody.setOnFocusChangeListener { _, b ->
             if(b) {
-                back.visibility = View.GONE
-                save.visibility = View.VISIBLE
+                entryBack.visibility = View.GONE
+                entrySave.visibility = View.VISIBLE
             }
         }
 
-        save.setOnClickListener {
+        entrySave.setOnClickListener {
             save()
             back()
         }
-        back.setOnClickListener {
+        entryBack.setOnClickListener {
             back()
         }
-        reload()
     }
 }
